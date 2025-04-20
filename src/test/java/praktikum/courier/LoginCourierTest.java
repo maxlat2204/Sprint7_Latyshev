@@ -12,6 +12,7 @@ import steps.CourierSteps;
 
 import static java.net.HttpURLConnection.*;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertNotNull;
 import static praktikum.EnvConfig.*;
 import static steps.CourierSteps.createCourier;
@@ -19,7 +20,7 @@ import static steps.CourierSteps.loginCourier;
 
 public class LoginCourierTest extends BaseApiTest {
 
-    private int courierId;
+//    private int courierId;
 
     @Before
     //Создаем курьера
@@ -35,9 +36,9 @@ public class LoginCourierTest extends BaseApiTest {
         courierId = loginCourier(login)
                 .path("id");
 
-        if (courierId > 0){
-            CourierSteps.deleteCourier(courierId);
-        }
+//        if (courierId > 0){
+//            CourierSteps.deleteCourier(courierId);
+//        }
     }
 
     CourierModel courierStatic = CourierModel.random();
@@ -51,20 +52,36 @@ public class LoginCourierTest extends BaseApiTest {
         courierId = loginCourier(login)
                 .then()
                 .statusCode(HTTP_OK)
+                .body("id", notNullValue())
                 .extract()
                 .path("id");
 
-        assertNotNull(courierId);
+//        assertNotNull(courierId);
     }
 
 
     @Test
-    @DisplayName("Негативный тест на авторизацию c несуществующей парой логин-пароль")
-    //Запрос c несуществующей парой логин-пароль:
+    @DisplayName("Негативный тест на авторизацию c несуществующим логином")
+    //Запрос c несуществующим логином:
     public void loginCourierNegativeTest(){
 
         //Логинимся с некоректным логином
         var loginNotСorrect = new LoginModel(COURIER_LOGIN+2, COURIER_PASSWORD);
+
+        loginCourier(loginNotСorrect)
+                .then()
+                .statusCode(HTTP_NOT_FOUND)
+                .body("message", equalTo("Учетная запись не найдена"));
+
+    }
+
+    @Test
+    @DisplayName("Негативный тест на авторизацию c несуществующим паролем")
+    //Запрос c несуществующей парой логин-пароль:
+    public void passwordCourierNegativeTest(){
+
+        //Логинимся с несуществующим паролем
+        var loginNotСorrect = new LoginModel(COURIER_LOGIN, COURIER_PASSWORD+2);
 
         loginCourier(loginNotСorrect)
                 .then()

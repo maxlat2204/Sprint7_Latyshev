@@ -1,6 +1,5 @@
 package praktikum.courier;
 
-import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import model.courier.CourierModel;
 import model.courier.LoginModel;
@@ -11,35 +10,36 @@ import steps.CourierSteps;
 import static io.restassured.RestAssured.given;
 import static java.net.HttpURLConnection.*;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static praktikum.EnvConfig.COURIER_FIRST_NAME;
-import static praktikum.EnvConfig.COURIER_LOGIN;
+import static praktikum.EnvConfig.*;
 import static steps.CourierSteps.createCourier;
 import static steps.CourierSteps.loginCourier;
 
 
 public class CreateCourierTest extends BaseApiTest {
 
-    private int courierId;
+//    private int courierId;
     CourierModel courier = CourierModel.random();
 
-    @After
-    public void delCourier(){
-
-        if (courierId > 0){
-            CourierSteps.deleteCourier(courierId);
-        }
-    }
+//    @After
+//    public void delCourier(){
+//
+//        if (courierId > 0){
+//            CourierSteps.deleteCourier(courierId);
+//        }
+//    }
 
     //Позитивный тест на создание курьера
     @Test
     @DisplayName("Позитивный тест на создание курьера")
     public void createCourierSuccessTest(){
 
+          //boolean addCourier =
         createCourier(courier)
                 .then()
                 .statusCode(HTTP_CREATED)
-                .body("ok", equalTo(true));
-
+                .body("ok", equalTo(true))
+                  .extract().path("ok");
+//          System.out.println(addCourier);
         var login = LoginModel.fromCourier(courier);
         courierId = loginCourier(login)
                 .path("id");
@@ -72,8 +72,20 @@ public class CreateCourierTest extends BaseApiTest {
     //Негативный тест на создание курьера без пароля
     @Test
     @DisplayName("Негативный тест на создание курьера без пароля")
-    public void parameterMissingCreateCourierNegativeTest(){
+    public void passwordMissingCreateCourierNegativeTest(){
         CourierModel courierNoValid = new CourierModel(COURIER_LOGIN, null, COURIER_FIRST_NAME);
+        createCourier(courierNoValid)
+                .then()
+                .statusCode(HTTP_BAD_REQUEST)
+                .body("message", equalTo("Недостаточно данных для создания учетной записи"));
+
+    }
+
+    //Негативный тест на создание курьера без логина
+    @Test
+    @DisplayName("Негативный тест на создание курьера без логина")
+    public void loginMissingCreateCourierNegativeTest(){
+        CourierModel courierNoValid = new CourierModel(null, COURIER_PASSWORD, COURIER_FIRST_NAME);
         createCourier(courierNoValid)
                 .then()
                 .statusCode(HTTP_BAD_REQUEST)

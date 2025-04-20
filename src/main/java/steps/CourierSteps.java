@@ -6,16 +6,13 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import model.courier.CourierModel;
 import model.courier.LoginModel;
+import praktikum.EndPoints;
 
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 
 public class CourierSteps {
-
-    public static final String COURIER_CREATE_PATH = "/api/v1/courier";
-    public static final String COURIER_LOGIN_PATH = "/api/v1/courier/login";
-    public static final String COURIER_DELETE_PATH = "/api/v1/courier/";
 
     private static RequestSpecification spec() {
         return given()
@@ -28,7 +25,7 @@ public class CourierSteps {
         return spec()
                 .body(courier)
                 .when()
-                .post(COURIER_CREATE_PATH)
+                .post(EndPoints.COURIER_CREATE_PATH)
                 .then().log().all()
                 .extract().response();
     }
@@ -38,7 +35,7 @@ public class CourierSteps {
         return spec()
                 .body(login)
                 .when()
-                .post(COURIER_LOGIN_PATH)
+                .post(EndPoints.COURIER_LOGIN_PATH)
                 .then().log().all()
                 .extract().response();
     }
@@ -48,7 +45,7 @@ public class CourierSteps {
         return spec()
                 .body(Map.of("id", id))
                 .when()
-                .delete(COURIER_DELETE_PATH + id)
+                .delete(EndPoints.COURIER_DELETE_PATH + id)
                 .then().log().all()
                 .extract().response();
     }
